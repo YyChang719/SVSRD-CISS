@@ -16,7 +16,7 @@ EPOCH=60
 INIT_LR=0.001
 LR=0.0001
 INIT_POSWEIGHT=2
-MEMORY_SIZE=0  # 100 for DKD-M
+MEMORY_SIZE=100
 
 NAME='DKD'
 python train_voc.py -c configs/config_voc.json \
