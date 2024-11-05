@@ -1,0 +1,109 @@
+{
+    "name": "DKD",
+    
+    "n_gpu": 1,
+    "multiprocessing_distributed": false,
+    "rank": 0,
+    "world_size": 1,
+    "dist_backend": "nccl",
+    "dist_url": "tcp://127.0.0.1:12340",
+    "seed": 1,
+    "use_amp": true,
+    "arch": {
+        "type": "DeepLabV3",
+        "args": {
+            "output_stride": 16,
+            "norm_act": "bn_sync",
+            "backbone_pretrained": true,
+            "freeze_all_bn": false
+        }
+    },
+    "data_loader": {
+        "type": "VOCIncrementalDataLoader",
+        "args": {
+            "task": {
+                "name": "15-5",
+                "step": 0,
+                "setting": "overlap",
+                "idxs_path": "/data/changyy/DKD-4/data/"
+            },
+            "train": {
+                "args": {
+                    "transform": true,
+                    "transform_args": {
+                        "crop_size": 512
+                    },
+                    "masking_value": 0
+                },
+                "batch_size": 8
+            },
+            "val": {
+                "cross_val": false,
+                "args": {
+                    "transform": true,
+                    "transform_args": {
+                        "crop_size": 512
+                    },
+                    "masking_value": 0
+                },
+                "batch_size": 1
+            },
+            "test": {
+                "args": {
+                    "transform": true,
+                    "transform_args": {
+                        "crop_size": 512
+                    },
+                    "masking_value": 0
+                },
+                "batch_size": 1
+            },
+            "num_workers": 4,
+            "pin_memory": true,
+            "memory": {"mem_size": 0}
+        }
+    },
+    "optimizer": {
+        "type": "SGD",
+        "args": {
+            "lr": 1e-3,
+            "weight_decay": 1e-4,
+            "momentum": 0.9,
+            "nesterov": true
+        }
+    },
+    "hyperparameter": {
+        "pos_weight": 1,
+        "mbce": 1,
+        "kd": 1.5,
+        "ac": 1,
+        "dkd_blo_similarity": 1,
+        "dkd_blo_moments":2,
+        "unbiasedCE": 0.25,
+        "unbiasedkd": 2
+    },
+    "lr_scheduler": {
+        "type": "PolyLR",
+        "args": {}
+    },
+    "evaluator": {
+        "type": "Evaluator",
+        "args": {}
+    },
+    "metrics": [
+        "Pixel_Accuracy",
+        "Pixel_Accuracy_Class",
+        "Mean_Intersection_over_Union"
+    ],
+    "trainer": {
+        "epochs": 80,
+        "save_dir": "saved_voc/",
+        "save_period": 5,
+        "validation_period": -1,
+        "verbosity": 2,
+        "monitor": "max val_Mean_Intersection_over_Union_overall",
+        "early_stop": 10,
+        "reset_best_mnt": true,
+        "tensorboard": false
+    }
+}
